@@ -8,6 +8,16 @@
 
 {% block content %}
 
+{% if user %}
+<section class="welcome-section">
+    <div class="welcome-inner">
+        <h1 class="welcome-title">Welcome back, {{ user["name"] }}!</h1>
+        <p class="welcome-subtitle">Ready to track your expenses today?</p>
+        <a href="{{ url_for('add_expense') }}" class="btn-primary">Add an expense</a>
+    </div>
+</section>
+{% endif %}
+
 <section class="hero">
     <div class="hero-text">
         <div class="hero-badge">
