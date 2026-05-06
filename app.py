@@ -14,17 +14,16 @@ app.secret_key = "spendly-dev-secret"  # TODO: load from env in production
 
 @app.route("/")
 def landing():
-    user = None
     if session.get("user_id"):
-        user = get_user_by_id(session["user_id"])
-    return render_template("landing.html", user=user)
+        return redirect(url_for("profile"))
+    return render_template("landing.html", user=None)
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
         if session.get("user_id"):
-            return redirect(url_for("landing"))
+            return redirect(url_for("profile"))
         return render_template("register.html")
 
     name = request.form.get("name", "").strip()
@@ -46,14 +45,15 @@ def register():
         return render_template("register.html", error="An account with that email already exists.")
 
     session["user_id"] = user_id
-    return redirect(url_for("landing"))
+    session["user_name"] = name
+    return redirect(url_for("profile"))
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
         if session.get("user_id"):
-            return redirect(url_for("landing"))
+            return redirect(url_for("profile"))
         return render_template("login.html")
 
     email = request.form.get("email", "").strip()
@@ -64,7 +64,8 @@ def login():
         return render_template("login.html", error="Invalid email or password.")
 
     session["user_id"] = user["id"]
-    return redirect(url_for("landing"))
+    session["user_name"] = user["name"]
+    return redirect(url_for("profile"))
 
 
 @app.route("/terms")
@@ -89,7 +90,40 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    profile_user = {
+        "name": "Demo User",
+        "email": "demo@spendly.com",
+        "member_since": "01 Jan 2025",
+    }
+    stats = {
+        "total_spent": "₹580.50",
+        "transaction_count": 8,
+        "top_category": "Bills",
+    }
+    transactions = [
+        {"date": "22 Apr 2026", "description": "Movie tickets",         "category": "Entertainment", "amount": "₹25.00"},
+        {"date": "18 Apr 2026", "description": "Taxi rides",            "category": "Transport",     "amount": "₹80.00"},
+        {"date": "14 Apr 2026", "description": "Restaurant lunch",      "category": "Food",          "amount": "₹35.00"},
+        {"date": "10 Apr 2026", "description": "Internet subscription", "category": "Bills",         "amount": "₹200.00"},
+        {"date": "08 Apr 2026", "description": "Pharmacy",              "category": "Health",        "amount": "₹60.00"},
+    ]
+    category_breakdown = [
+        {"category": "Bills",         "total": "₹320.00", "percent": 55},
+        {"category": "Transport",     "total": "₹95.50",  "percent": 16},
+        {"category": "Food",          "total": "₹80.00",  "percent": 14},
+        {"category": "Health",        "total": "₹60.00",  "percent": 10},
+        {"category": "Entertainment", "total": "₹25.00",  "percent": 4},
+    ]
+    return render_template(
+        "profile.html",
+        profile_user=profile_user,
+        stats=stats,
+        transactions=transactions,
+        category_breakdown=category_breakdown,
+    )
 
 
 @app.route("/expenses/add")
