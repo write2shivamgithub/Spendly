@@ -2,7 +2,13 @@ import sqlite3
 
 from flask import Flask, render_template, request, session, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
-from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, get_user_by_id
+from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
+from database.queries import (
+    get_user_by_id,
+    get_summary_stats,
+    get_recent_transactions,
+    get_category_breakdown,
+)
 
 app = Flask(__name__)
 app.secret_key = "spendly-dev-secret"  # TODO: load from env in production
@@ -93,30 +99,10 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
-    profile_user = {
-        "name": "Demo User",
-        "email": "demo@spendly.com",
-        "member_since": "01 Jan 2025",
-    }
-    stats = {
-        "total_spent": "₹580.50",
-        "transaction_count": 8,
-        "top_category": "Bills",
-    }
-    transactions = [
-        {"date": "22 Apr 2026", "description": "Movie tickets",         "category": "Entertainment", "amount": "₹25.00"},
-        {"date": "18 Apr 2026", "description": "Taxi rides",            "category": "Transport",     "amount": "₹80.00"},
-        {"date": "14 Apr 2026", "description": "Restaurant lunch",      "category": "Food",          "amount": "₹35.00"},
-        {"date": "10 Apr 2026", "description": "Internet subscription", "category": "Bills",         "amount": "₹200.00"},
-        {"date": "08 Apr 2026", "description": "Pharmacy",              "category": "Health",        "amount": "₹60.00"},
-    ]
-    category_breakdown = [
-        {"category": "Bills",         "total": "₹320.00", "percent": 55},
-        {"category": "Transport",     "total": "₹95.50",  "percent": 16},
-        {"category": "Food",          "total": "₹80.00",  "percent": 14},
-        {"category": "Health",        "total": "₹60.00",  "percent": 10},
-        {"category": "Entertainment", "total": "₹25.00",  "percent": 4},
-    ]
+    profile_user = get_user_by_id(session["user_id"])
+    stats = get_summary_stats(session["user_id"])
+    transactions = get_recent_transactions(session["user_id"])
+    category_breakdown = get_category_breakdown(session["user_id"])
     return render_template(
         "profile.html",
         profile_user=profile_user,
