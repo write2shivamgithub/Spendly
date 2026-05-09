@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 from flask import Flask, render_template, request, session, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -99,16 +100,37 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
+    raw_from = request.args.get("from", "").strip()
+    raw_to = request.args.get("to", "").strip()
+
+    date_from = date_to = None
+    dt_from = dt_to = None
+    try:
+        if raw_from and raw_to:
+            dt_from = datetime.strptime(raw_from, "%Y-%m-%d")
+            dt_to = datetime.strptime(raw_to, "%Y-%m-%d")
+            if dt_from <= dt_to:
+                date_from, date_to = raw_from, raw_to
+    except ValueError:
+        pass
+
+    filter_label = None
+    if date_from and dt_from and dt_to:
+        filter_label = dt_from.strftime("%d %b %Y") + " – " + dt_to.strftime("%d %b %Y")
+
     profile_user = get_user_by_id(session["user_id"])
-    stats = get_summary_stats(session["user_id"])
-    transactions = get_recent_transactions(session["user_id"])
-    category_breakdown = get_category_breakdown(session["user_id"])
+    stats = get_summary_stats(session["user_id"], date_from=date_from, date_to=date_to)
+    transactions = get_recent_transactions(session["user_id"], date_from=date_from, date_to=date_to)
+    category_breakdown = get_category_breakdown(session["user_id"], date_from=date_from, date_to=date_to)
     return render_template(
         "profile.html",
         profile_user=profile_user,
         stats=stats,
         transactions=transactions,
         category_breakdown=category_breakdown,
+        date_from=date_from,
+        date_to=date_to,
+        filter_label=filter_label,
     )
 
 
@@ -133,4 +155,5 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    import os
+    app.run(debug=os.environ.get("FLASK_DEBUG", "0") == "1", port=5001)
