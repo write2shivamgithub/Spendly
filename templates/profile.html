@@ -7,6 +7,26 @@
 
     <h1 class="profile-page-title">My Profile</h1>
 
+    <div class="date-filter-bar">
+        <form class="date-filter-form" method="get" action="{{ url_for('profile') }}">
+            <div class="date-filter-fields">
+                <label class="date-filter-label" for="from">From</label>
+                <input class="date-filter-input form-input" type="date" id="from" name="from"
+                       value="{{ date_from or '' }}">
+                <label class="date-filter-label" for="to">To</label>
+                <input class="date-filter-input form-input" type="date" id="to" name="to"
+                       value="{{ date_to or '' }}">
+            </div>
+            <div class="date-filter-actions">
+                <button class="btn-primary date-filter-submit" type="submit">Filter</button>
+                <a class="btn-ghost date-filter-clear" href="{{ url_for('profile') }}">Clear</a>
+            </div>
+        </form>
+        {% if filter_label %}
+        <p class="date-filter-active-label">Filtered: {{ filter_label }}</p>
+        {% endif %}
+    </div>
+
     <div class="profile-top">
 
         <div class="profile-card">
