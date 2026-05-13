@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — Spendly{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="analytics-page">
+
+    <div class="analytics-card">
+
+        <div class="analytics-icon-wrap">
+            <svg class="analytics-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="4" y="28" width="8" height="16" rx="2" fill="currentColor" opacity="0.35"/>
+                <rect x="16" y="18" width="8" height="26" rx="2" fill="currentColor" opacity="0.6"/>
+                <rect x="28" y="10" width="8" height="34" rx="2" fill="currentColor" opacity="0.85"/>
+                <rect x="40" y="4" width="4" height="40" rx="2" fill="currentColor"/>
+            </svg>
+        </div>
+
+        <div class="analytics-badge">Coming Soon</div>
+
+        <h1 class="analytics-title">Analytics</h1>
+
+        <p class="analytics-description">
+            We're building powerful insights to help you understand your
+            spending patterns, spot trends, and take control of your finances.
+        </p>
+
+        <ul class="analytics-features">
+            <li class="analytics-feature">
+                <span class="analytics-check">◎</span>
+                Spending trends over time
+            </li>
+            <li class="analytics-feature">
+                <span class="analytics-check">◎</span>
+                Category breakdown charts
+            </li>
+            <li class="analytics-feature">
+                <span class="analytics-check">◎</span>
+                Monthly &amp; yearly comparisons
+            </li>
+            <li class="analytics-feature">
+                <span class="analytics-check">◎</span>
+                Budget vs. actual tracking
+            </li>
+        </ul>
+
+        <a href="{{ url_for('profile') }}" class="btn-primary analytics-cta">Back to Profile</a>
+
+    </div>
+
+</div>
+{% endblock %}
