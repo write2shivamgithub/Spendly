@@ -107,6 +107,7 @@ a { color: inherit; text-decoration: none; }
 
 .nav-links a { color: var(--ink-muted); transition: color 0.2s; }
 .nav-links a:hover { color: var(--ink); }
+.nav-links a.nav-link-active { color: var(--ink); font-weight: 500; }
 
 .nav-username {
     font-size: 0.875rem;
@@ -857,3 +858,49 @@ a { color: inherit; text-decoration: none; }
         text-align: center;
     }
 }
+
+/* ------------------------------------------------------------------ */
+/* Add expense page                                                    */
+/* ------------------------------------------------------------------ */
+
+.form-error {
+    background: var(--danger-light);
+    color: var(--danger);
+    border: 1px solid #f5c6c2;
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    margin-bottom: 1.25rem;
+}
+
+.form-optional {
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    font-weight: 400;
+}
+
+/* ------------------------------------------------------------------ */
+/* Profile — section header with action button                         */
+/* ------------------------------------------------------------------ */
+
+.profile-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.profile-section-header .profile-section-title {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Badge — missing categories                                          */
+/* ------------------------------------------------------------------ */
+
+.badge-shopping { background: var(--paper-warm);  color: var(--ink-soft); }
+.badge-other    { background: var(--border-soft); color: var(--ink-muted); }

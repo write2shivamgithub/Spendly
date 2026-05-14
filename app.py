@@ -1,7 +1,8 @@
+import math
 import sqlite3
 from datetime import datetime
 
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
 from database.queries import (
@@ -9,10 +10,13 @@ from database.queries import (
     get_summary_stats,
     get_recent_transactions,
     get_category_breakdown,
+    insert_expense,
 )
 
 app = Flask(__name__)
 app.secret_key = "spendly-dev-secret"  # TODO: load from env in production
+
+VALID_CATEGORIES = ["Food", "Transport", "Bills", "Health", "Entertainment", "Shopping", "Other"]
 
 
 # ------------------------------------------------------------------ #
@@ -134,9 +138,56 @@ def profile():
     )
 
 
-@app.route("/expenses/add")
+@app.route("/analytics")
+def analytics():
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+    return render_template("analytics.html")
+
+
+@app.route("/expenses/add", methods=["GET", "POST"])
 def add_expense():
-    return "Add expense — coming in Step 7"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    today = datetime.today().strftime("%Y-%m-%d")
+
+    if request.method == "GET":
+        return render_template("add_expense.html", categories=VALID_CATEGORIES, today=today)
+
+    amount_str = request.form.get("amount", "").strip()
+    category = request.form.get("category", "").strip()
+    date_str = request.form.get("date", "").strip()
+    description = request.form.get("description", "").strip() or None
+
+    def rerender(error):
+        return render_template(
+            "add_expense.html",
+            categories=VALID_CATEGORIES,
+            today=today,
+            error=error,
+        )
+
+    try:
+        amount = float(amount_str)
+        if not math.isfinite(amount) or amount <= 0:
+            raise ValueError
+    except ValueError:
+        return rerender("Amount must be a number greater than 0.")
+
+    if category not in VALID_CATEGORIES:
+        return rerender("Please select a valid category.")
+
+    try:
+        datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        return rerender("Date must be a valid date (YYYY-MM-DD).")
+
+    if description and len(description) > 200:
+        return rerender("Description must be 200 characters or fewer.")
+
+    insert_expense(session["user_id"], amount, category, date_str, description)
+    return redirect(url_for("profile"))
 
 
 @app.route("/expenses/<int:id>/edit")
